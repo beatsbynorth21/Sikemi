@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiiii Iyanu 🥳</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+body {
+  margin:0; padding:0;
+  font-family: 'JetBrains Mono', monospace;
+  color:#fff;
+  overflow:hidden;
+  text-align:center;
+  position:relative;
+  background: linear-gradient(120deg, #ff6ec7, #3399ff);
+  animation: bgBlink 4s infinite alternate;
+}
+
+@keyframes bgBlink {
+  0% { background: linear-gradient(120deg, #ff6ec7, #ff77a9); }
+  50% { background: linear-gradient(120deg, #3399ff, #66ccff); }
+  100% { background: linear-gradient(120deg, #ff6ec7, #ff77a9); }
+}
+
+h1 {
+  margin-top:50px;
+  font-size:2.8em;
+  color:#ff6ec7;
+  opacity:0;
+  animation:fadeIn 2s forwards;
+}
+@keyframes fadeIn { to {opacity:1;} }
+
+#startBtn {
+  margin-top:40px;
+  background:#ff6ec7;
+  color:#fff;
+  border:none;
+  padding:15px 30px;
+  font-size:1.2em;
+  border-radius:12px;
+  cursor:pointer;
+  transition: transform 0.2s;
+}
+#startBtn:hover { transform:scale(1.1); }
+
+.game { display:none; margin-top:50px; }
+
+.heart {
+  position:absolute;
+  font-size:40px;
+  cursor:pointer;
+  user-select:none;
+  transition: transform 0.3s;
+}
+.heart:hover { transform:scale(1.5) rotate(-15deg); }
+
+#message {
+  display:none;
+  margin-top:50px;
+  font-size:1.5em;
+  animation:fadeIn 2s forwards;
+  max-width: 800px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+#terminal {
+  margin-top:30px;
+  background:#000;
+  color:#0f0;
+  font-size:1em;
+  padding:20px;
+  width:80%;
+  max-width:500px;
+  margin-left:auto;
+  margin-right:auto;
+  display:none;
+  border-radius:10px;
+  text-align:left;
+}
+
+.pulse { animation:pulse 1s infinite; }
+@keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+.hidden-hover { color:#ff6ec7; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h1>Hiiii Iyanu 🥳</h1>
+<button id="startBtn">Start the Fun 🚀</button>
+
+<div class="game" id="game">
+  <p>Click the hearts in the right order to reveal a secret 💌</p>
+</div>
+
+<div id="message">
+  <p>🎉 You did it, Iyanuoluwa! 💖</p>
+  <p>Seeing your photos on Snap makes my day by the way 😏</p>
+  <p>And… someone thinks you’re awesome 😎</p>
+
+  <!-- PERSONAL STORY -->
+  <p style="margin-top:20px; font-style:italic; font-size:1.1em; color:#ffd1dc;">
+    I remember the first time we met in 2024, I was embarrassed asf cause I felt I was looking too "razz" and "anyhow" while in the presence of such a Resplendent girl.  
+    It's just like Dostoevsky wrote "что красота спасёт мир. Кажется, я наконец понял, что он имел в виду" meaning that beauty will save the world. I think I finally understand what he meant.  
+    What I'm trying to say is, I'm happy and glad I know you.
+  </p>
+
+  <p>Hover over the hidden spot below to reveal a bonus compliment 💌</p>
+  <span class="hidden-hover" id="bonus" style="display:inline-block;">💖</span>
+</div>
+
+<div id="terminal"></div>
+
+<audio id="chime">
+  <source src="https://www.soundjay.com/buttons/sounds/button-16.mp3" type="audio/mpeg">
+</audio>
+<audio id="clickSound">
+  <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const startBtn = document.getElementById('startBtn');
+const game = document.getElementById('game');
+const message = document.getElementById('message');
+const terminal = document.getElementById('terminal');
+const chime = document.getElementById('chime');
+const clickSound = document.getElementById('clickSound');
+const bonus = document.getElementById('bonus');
+
+startBtn.addEventListener('click', () => {
+  startBtn.style.display='none';
+  game.style.display='block';
+  createHearts();
+  createFloatingEmojis();
+});
+
+let heartOrder = [];
+const correctOrder = ['💖','💜','💗','💞','❤️'];
+
+function createHearts() {
+  const colors = ['#ff6ec7','#ff77a9','#ff3399','#ff66cc','#ff3399'];
+  for(let i=0;i<5;i++){
+    const heart = document.createElement('span');
+    heart.classList.add('heart','pulse');
+    heart.textContent = correctOrder[i];
+    heart.dataset.emoji = correctOrder[i];
+    heart.style.top = (10 + i*12)+'%';
+    heart.style.left = (10 + i*15)+'%';
+    heart.style.color = colors[i];
+    document.body.appendChild(heart);
+    heart.addEventListener('click', () => handleHeartClick(heart));
+  }
+}
+
+function handleHeartClick(heart){
+  heartOrder.push(heart.dataset.emoji);
+  heart.style.display='none';
+  clickSound.play();
+  if(heartOrder.length === correctOrder.length){
+    checkOrder();
+  }
+}
+
+function checkOrder(){
+  let correct=true;
+  for(let i=0;i<correctOrder.length;i++){
+    if(heartOrder[i] !== correctOrder[i]) correct=false;
+  }
+  if(correct){
+    document.querySelectorAll('.heart').forEach(h => h.remove());
+    game.style.display='none';
+    message.style.display='block';
+    terminal.style.display='block';
+    chime.play();
+    runTerminal();
+  } else {
+    heartOrder=[];
+    alert('Oops! Try again 😉');
+    document.querySelectorAll('.heart').forEach(h=>h.style.display='inline');
+  }
+}
+
+function runTerminal(){
+  const lines = [
+    'Booting... 💻',
+    'Decrypting secret for Iyanuoluwa... 💌',
+    'Access Granted!',
+    'You unlocked the mini challenge 😏',
+    'Secret message: Seeing your photos on Snap makes my day by the way 😘'
+  ];
+  let i=0;
+  terminal.textContent='';
+  const interval=setInterval(()=>{
+    terminal.textContent += lines[i]+'\n';
+    i++;
+    if(i>=lines.length) clearInterval(interval);
+  },800);
+}
+
+bonus.addEventListener('mouseenter', ()=>{
+  bonus.textContent="✨ Iyanuoluwa, your energy is amazing! ✨";
+});
+
+function createFloatingEmojis(){
+  const emojis = ['💖','💜','💗','💞','❤️','✨','🌟','💫'];
+  for(let i=0;i<15;i++){
+    const e = document.createElement('span');
+    e.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    e.style.position='absolute';
+    e.style.top = Math.random()*100 + '%';
+    e.style.left = Math.random()*100 + '%';
+    e.style.fontSize = (Math.random()*30 + 15)+'px';
+    e.style.opacity = Math.random()*0.6 + 0.4;
+    e.style.pointerEvents='none';
+    document.body.appendChild(e);
+    animateEmoji(e);
+  }
+}
+
+function animateEmoji(el){
+  let top = parseFloat(el.style.top);
+  setInterval(()=>{
+    top -= 0.2;
+    if(top < -5) top=105;
+    el.style.top = top+'%';
+  },30);
+}
+</script>
+
+</body>
+</html>
